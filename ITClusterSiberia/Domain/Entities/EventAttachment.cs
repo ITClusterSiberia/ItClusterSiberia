@@ -1,3 +1,5 @@
+namespace Domain.Entities;
+
 public class EventAttachment : EntityBase
 {
     public string FileName { get; init; }
