@@ -2,6 +2,6 @@ namespace Domain.Entities;
 
 public class EventMembers : EntityBase
 {
-    public Guid EventId { get; init; }
-    public Guid UserId { get; init; }
+    public Guid EventId { get; protected set; }
+    public Guid UserId { get; protected set; }
 }

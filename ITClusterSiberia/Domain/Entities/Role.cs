@@ -2,5 +2,5 @@ namespace Domain.Entities;
 
 public class Role : EntityBase
 {
-    public string Name { get; init; }
+    public string Name { get; protected set; }
 }
