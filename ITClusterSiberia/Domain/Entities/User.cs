@@ -4,44 +4,53 @@ namespace Domain.Entities;
 
 public class User : EntityBase
 {
-    public User(UserInfo userInfo, ContactInfo contactInfo, AccountData accountData, DateTime birthDate)
+    public User(UserInfo userInfo, ContactInfo contactInfo, AccountData accountData, DateTime birthDate,
+        Guid systemRoleId, IReadOnlyCollection<Guid>? eventMemberIds = null, Guid? id = null)
+        : base(id)
     {
         if (birthDate > DateTime.Now)
         {
             throw new ArgumentException("Дата рождения не может быть позднее текущей даты.");
         }
+
         BirthDate = birthDate;
         UserInfo = userInfo;
         AccountData = accountData;
         ContactInfo = contactInfo;
+        SystemRoleId = systemRoleId;
+        EventMemberIds = eventMemberIds ?? [];
     }
-    
+
     public UserInfo UserInfo { get; protected set; }
     public string FullName => UserInfo.ToString();
-    
+
     public DateTime BirthDate { get; protected set; }
     public int Age => (DateTime.Now - BirthDate).Days / 365;
-    
+
     public ContactInfo ContactInfo { get; protected set; }
-    
+
     public AccountData AccountData { get; protected set; }
+
+    public Guid SystemRoleId { get; protected set; }
+
+    public IReadOnlyCollection<Guid> EventMemberIds { get; protected set; }
 }
 
 public class UserInfo
 {
     private readonly Regex _regexFirstName = new(@"^[a-zA-Zа-яА-Я]{1,60}$");
     private readonly Regex _regexLastName = new(@"^[a-zA-Zа-яА-Я]{1,100}$");
-    
+
     private string _firstName;
     private string _lastName;
-    
+
     public UserInfo(string firstName, string lastName)
     {
         FirstName = firstName;
         LastName = lastName;
     }
 
-    
+
     public string FirstName
     {
         get => _firstName;
@@ -49,7 +58,7 @@ public class UserInfo
             ? value
             : throw new ArgumentException("Некорректное имя.");
     }
-    
+
     public string LastName
     {
         get => _lastName;
@@ -62,7 +71,7 @@ public class UserInfo
     {
         return $"{FirstName} {LastName}";
     }
-    
+
     public override bool Equals(object? obj)
     {
         var userInfo = obj as UserInfo;
@@ -70,6 +79,7 @@ public class UserInfo
         {
             return false;
         }
+
         return FirstName == userInfo.FirstName && LastName == userInfo.LastName;
     }
 }
@@ -78,7 +88,7 @@ public class ContactInfo
 {
     private readonly Regex _regexEmail = new(@"^\S+@\S+[.]\w+$");
     private readonly Regex _regexPhoneNumber = new(@"^(\+7|8)\d{10}$");
-    
+
     private string _email;
     private string _phoneNumber;
 
@@ -87,7 +97,7 @@ public class ContactInfo
         Email = email;
         PhoneNumber = phoneNumber;
     }
-    
+
     public string Email
     {
         get => _email;
@@ -95,7 +105,7 @@ public class ContactInfo
             ? value
             : throw new ArgumentException("Некорректный email.");
     }
-    
+
     public string PhoneNumber
     {
         get => _phoneNumber;
@@ -108,7 +118,7 @@ public class ContactInfo
     {
         return $"Email: {Email}\n Phone number: {PhoneNumber}";
     }
-    
+
     public override bool Equals(object? obj)
     {
         var contactInfo = obj as ContactInfo;
@@ -116,42 +126,53 @@ public class ContactInfo
         {
             return false;
         }
+
         return Email == contactInfo.Email && PhoneNumber == contactInfo.PhoneNumber;
     }
 }
 
 public class AccountData
 {
-    private readonly Regex _regexUserName = new(@"^(?=.*\S)[ a-zA-Zа-яА-Я0-9]{8,150}[^\s]$"); 
-    private readonly Regex _regexPassword = new(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$");
-    
+    private const int MinUserNameLength = 4;
+    private const int MaxUserNameLength = 150;
+    private const int MinPasswordLength = 4;
+    private const int MaxPasswordLength = 150;
+
+    private readonly Regex _regexUserName =
+        new($@"^(?=.*\S)[ a-zA-Zа-яА-Я0-9]{{{MinUserNameLength},{MaxUserNameLength}}}[^\s]$");
+
+    private readonly Regex _regexPassword =
+        new($@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{{{MinPasswordLength},{MaxPasswordLength}}}$");
+
     private string _userName;
     private string _password;
-    
+
     public AccountData(string userName, string password)
     {
         UserName = userName;
         Password = password;
     }
-    
+
     public string UserName
     {
         get => _userName;
-        set => _userName = (value.Length is >= 4 and <= 150)
+        set => _userName = (_regexUserName.IsMatch(value))
             ? value
-            : value.Length < 8
-                ? throw new ArgumentException("Слишком короткое имя пользователя. Минимальный размер = 4.")
-                : throw new AggregateException("Слишком длинное имя пользователя. Максимальный размер = 150.");
+            : value?.Length < MinUserNameLength
+                ? throw new ArgumentException(
+                    $"Слишком короткое имя пользователя. Минимальный размер = {MinUserNameLength}.")
+                : throw new AggregateException(
+                    $"Слишком длинное имя пользователя. Максимальный размер = {MaxUserNameLength}.");
     }
-    
+
     public string Password
     {
         get => _password;
-        set => _password = (value.Length is >= 8 and <= 20)
+        set => _password = (_regexPassword.IsMatch(value))
             ? value
-            : value.Length < 8
-                ? throw new ArgumentException("Слишком короткий пароль. Минимальный размер = 4.")
-                : throw new AggregateException("Слишком длинный пароль. Максимальный размер = 20.");
+            : value?.Length < MinPasswordLength
+                ? throw new ArgumentException($"Слишком короткий пароль. Минимальный размер = {MinPasswordLength}.")
+                : throw new AggregateException($"Слишком длинный пароль. Максимальный размер = {MaxPasswordLength}.");
     }
 
     public override string ToString()
@@ -166,6 +187,7 @@ public class AccountData
         {
             return false;
         }
+
         return UserName == accountData.UserName && Password == accountData.Password;
     }
 }

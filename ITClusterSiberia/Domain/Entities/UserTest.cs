@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
+
 namespace Domain.Entities;
 
 public class UserTest
@@ -20,9 +21,14 @@ public class UserTest
 
     [Theory]
     [InlineData("", "")]
+    [InlineData(null, null)]
+    [InlineData("1", "Егер1")]
+    [InlineData("!!+/", "_~#@")]
     [InlineData("Очень-очень-очень-очень-очень-очень длинноеееееее имя", "")]
-    [InlineData("Очень-очень-очень-очень-очень-очень длинноеееееее имя", "Очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень длинная фамилия")]
-    [InlineData("", "Очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень длинная фамилия")]
+    [InlineData("Очень-очень-очень-очень-очень-очень длинноеееееее имя",
+        "Очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень длинная фамилия")]
+    [InlineData("",
+        "Очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень-очень длинная фамилия")]
     public void UserInfo_Invalid_Test(string firstName, string lastName)
     {
         var act = () =>
@@ -31,11 +37,11 @@ public class UserTest
         };
         act.Should().Throw<ArgumentException>();
     }
-    
+
     #endregion
-    
+
     #region ContactInfo_Test
-    
+
     [Theory]
     [InlineData("test@test.com", "89131234567")]
     [InlineData("hello@m.r", "+79231234567")]
@@ -63,7 +69,7 @@ public class UserTest
         };
         act.Should().Throw<ArgumentException>();
     }
-    
+
     #endregion
 
     #region AccountData_Test
@@ -81,6 +87,7 @@ public class UserTest
 
     [Theory]
     [InlineData("", "")]
+    [InlineData(null, null)]
     public void AccountData_Invalid_Test(string userName, string password)
     {
         var act = () =>
@@ -89,6 +96,21 @@ public class UserTest
         };
         act.Should().Throw<ArgumentException>();
     }
-    
+
+    #endregion
+
+    #region User_Test
+
+    [Fact]
+    public void User_Valid_Test()
+    {
+        // var userInfo = new UserInfo("", "");
+        // ContactInfo contactInfo;
+        // AccountData accountData;
+        // DateTime dateBirth;
+        // SystemRoleId systemRole;
+        // var user = new UserId(userInfo, contactInfo, accountData, dateBirth, systemRole);
+    }
+
     #endregion
 }
