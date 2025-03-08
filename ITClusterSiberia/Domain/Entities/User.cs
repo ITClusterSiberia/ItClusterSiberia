@@ -36,25 +36,24 @@ public class User : EntityBase
     public IReadOnlyCollection<Guid> EventMemberIds { get; protected set; }
 }
 
-public class UserInfo
+public partial class UserInfo
 {
-    private readonly Regex _regexFirstName = new(@"^[a-zA-Zа-яА-Я]{1,60}$");
-    private readonly Regex _regexLastName = new(@"^[a-zA-Zа-яА-Я]{1,100}$");
+    private readonly Regex _regexFirstName = RegexFirstName();
+    private readonly Regex _regexLastName = RegexLastName();
 
-    private string _firstName;
-    private string _lastName;
+    private readonly string _firstName = string.Empty;
+    private readonly string _lastName = string.Empty;
 
     public UserInfo(string firstName, string lastName)
     {
         FirstName = firstName;
         LastName = lastName;
     }
-
-
+    
     public string FirstName
     {
         get => _firstName;
-        set => _firstName = (_regexFirstName.IsMatch(value))
+        init => _firstName = (_regexFirstName.IsMatch(value))
             ? value
             : throw new ArgumentException("Некорректное имя.");
     }
@@ -62,7 +61,7 @@ public class UserInfo
     public string LastName
     {
         get => _lastName;
-        set => _lastName = (_regexLastName.IsMatch(value))
+        init => _lastName = (_regexLastName.IsMatch(value))
             ? value
             : throw new ArgumentException("Некорректная фамилия.");
     }
@@ -82,15 +81,25 @@ public class UserInfo
 
         return FirstName == userInfo.FirstName && LastName == userInfo.LastName;
     }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(FirstName, LastName);
+    }
+
+    [GeneratedRegex(@"^[a-zA-Zа-яА-Я]{1,60}$")]
+    private static partial Regex RegexFirstName();
+    [GeneratedRegex(@"^[a-zA-Zа-яА-Я]{1,100}$")]
+    private static partial Regex RegexLastName();
 }
 
-public class ContactInfo
+public partial class ContactInfo
 {
-    private readonly Regex _regexEmail = new(@"^\S+@\S+[.]\w+$");
-    private readonly Regex _regexPhoneNumber = new(@"^(\+7|8)\d{10}$");
+    private readonly Regex _regexEmail = RegexEmail();
+    private readonly Regex _regexPhoneNumber = RegexPhoneNumber();
 
-    private string _email;
-    private string _phoneNumber;
+    private readonly string _email = string.Empty;
+    private readonly string _phoneNumber = string.Empty;
 
     public ContactInfo(string email, string phoneNumber)
     {
@@ -101,7 +110,7 @@ public class ContactInfo
     public string Email
     {
         get => _email;
-        set => _email = _regexEmail.IsMatch(value)
+        init => _email = _regexEmail.IsMatch(value)
             ? value
             : throw new ArgumentException("Некорректный email.");
     }
@@ -109,7 +118,7 @@ public class ContactInfo
     public string PhoneNumber
     {
         get => _phoneNumber;
-        set => _phoneNumber = _regexPhoneNumber.IsMatch(value)
+        init => _phoneNumber = _regexPhoneNumber.IsMatch(value)
             ? value
             : throw new ArgumentException("Некорректный номер телефона");
     }
@@ -121,14 +130,18 @@ public class ContactInfo
 
     public override bool Equals(object? obj)
     {
-        var contactInfo = obj as ContactInfo;
-        if (contactInfo is null)
-        {
-            return false;
-        }
-
-        return Email == contactInfo.Email && PhoneNumber == contactInfo.PhoneNumber;
+        return obj is ContactInfo contactInfo && Email == contactInfo.Email && PhoneNumber == contactInfo.PhoneNumber;
     }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Email, PhoneNumber);
+    }
+
+    [GeneratedRegex(@"^\S+@\S+[.]\w+$")]
+    private static partial Regex RegexEmail();
+    [GeneratedRegex(@"^(\+7|8)\d{10}$")]
+    private static partial Regex RegexPhoneNumber();
 }
 
 public class AccountData
@@ -144,8 +157,8 @@ public class AccountData
     private readonly Regex _regexPassword =
         new($@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{{{MinPasswordLength},{MaxPasswordLength}}}$");
 
-    private string _userName;
-    private string _password;
+    private readonly string _userName = string.Empty;
+    private readonly string _password = string.Empty;
 
     public AccountData(string userName, string password)
     {
@@ -156,7 +169,7 @@ public class AccountData
     public string UserName
     {
         get => _userName;
-        set => _userName = (_regexUserName.IsMatch(value))
+        init => _userName = (_regexUserName.IsMatch(value))
             ? value
             : value?.Length < MinUserNameLength
                 ? throw new ArgumentException(
@@ -165,10 +178,11 @@ public class AccountData
                     $"Слишком длинное имя пользователя. Максимальный размер = {MaxUserNameLength}.");
     }
 
+    //TODO: password hash
     public string Password
     {
         get => _password;
-        set => _password = (_regexPassword.IsMatch(value))
+        init => _password = (_regexPassword.IsMatch(value))
             ? value
             : value?.Length < MinPasswordLength
                 ? throw new ArgumentException($"Слишком короткий пароль. Минимальный размер = {MinPasswordLength}.")
@@ -189,5 +203,10 @@ public class AccountData
         }
 
         return UserName == accountData.UserName && Password == accountData.Password;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(UserName, Password);
     }
 }

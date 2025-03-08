@@ -3,12 +3,12 @@ using System.Text.RegularExpressions;
 namespace Domain.Entities;
 
 //TODO: Добавить тесты
-public class EventAttachment : EntityBase
+public partial class EventAttachment : EntityBase
 {
-    private readonly Regex _regexFile = new(@"^(?=.*\S)[\S\s]+\.\S+$");
+    private readonly Regex _regexFile = RegexFile();
 
-    private string _fileName;
-    private string _filePath;
+    private string _fileName = string.Empty;
+    private string _filePath = string.Empty;
 
     public EventAttachment(string fileName, string? description, string filePath, Guid eventId, Guid? id = null)
         : base(id)
@@ -38,4 +38,7 @@ public class EventAttachment : EntityBase
     }
 
     public Guid EventId { get; protected set; }
+
+    [GeneratedRegex(@"^(?=.*\S)[\S\s]+\.\S+$")]
+    private static partial Regex RegexFile();
 }

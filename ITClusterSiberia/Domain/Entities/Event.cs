@@ -3,14 +3,18 @@ namespace Domain.Entities;
 //TODO: Добавить валидацию
 public class Event : EntityBase
 {
-    public Event(string title, string description, DateTime eventDate, Guid? id = null,
-        IReadOnlyCollection<Guid>? eventMemberIds = null, IReadOnlyCollection<Guid>? eventAttachmentIds = null)
+    public Event(string title, string description, DateTime eventDate, IReadOnlyCollection<Guid> eventMemberIds,
+        Guid? id = null, IReadOnlyCollection<Guid>? eventAttachmentIds = null)
         : base(id)
     {
+        if (eventMemberIds.Count == 0)
+        {
+            throw new ArgumentException("Не указан ни один участник.");
+        }
         Title = title;
         Description = description;
         EventDate = eventDate;
-        EventMemberIds = eventMemberIds ?? [];
+        EventMemberIds = eventMemberIds;
         EventAttachmentIds = eventAttachmentIds ?? [];
     }
 
