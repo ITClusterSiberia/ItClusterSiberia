@@ -45,3 +45,9 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ITClusterSiberia_ItClusterSiberia" /o:"itclustersiberia" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.qualitygate.wait=true
           dotnet build ITClusterSiberia/
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          Write-Host $LASTEXITCODE
+          # Проверка кода возврата
+          if ($LASTEXITCODE -ne 0) {
+              Write-Host "SonarQube analysis failed with exit code $LASTEXITCODE"
+              exit $LASTEXITCODE
+          }
