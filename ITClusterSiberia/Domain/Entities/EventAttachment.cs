@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace Domain.Entities;
 
-//TODO: Добавить тесты
 public partial class EventAttachment : EntityBase
 {
     private readonly Regex _regexFile = RegexFile();

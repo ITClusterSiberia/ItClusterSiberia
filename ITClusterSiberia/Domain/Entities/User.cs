@@ -73,13 +73,7 @@ public partial class UserInfo
 
     public override bool Equals(object? obj)
     {
-        var userInfo = obj as UserInfo;
-        if (userInfo is null)
-        {
-            return false;
-        }
-
-        return FirstName == userInfo.FirstName && LastName == userInfo.LastName;
+        return obj is UserInfo userInfo && FirstName == userInfo.FirstName && LastName == userInfo.LastName;
     }
 
     public override int GetHashCode()
@@ -196,13 +190,7 @@ public class AccountData
 
     public override bool Equals(object? obj)
     {
-        var accountData = obj as AccountData;
-        if (accountData is null)
-        {
-            return false;
-        }
-
-        return UserName == accountData.UserName && Password == accountData.Password;
+        return obj is AccountData accountData && UserName == accountData.UserName && Password == accountData.Password;
     }
 
     public override int GetHashCode()

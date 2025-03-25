@@ -1,6 +1,5 @@
 namespace Domain.Entities;
 
-//TODO: Добавить валидацию
 public class EventMember : EntityBase
 {
     public EventMember(Guid eventId, Guid userId, Guid roleId, Guid? id = null)
